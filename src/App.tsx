@@ -125,6 +125,7 @@ function App() {
                 matchScores={playback.matchScores}
                 onComplete={handleRevealComplete}
                 isComplete={playback.isComplete}
+                onSkip={playback.skip}
               />
             )}
 

@@ -13,6 +13,7 @@ interface ScoreTableProps {
   matchScores: [number, number]
   onComplete: () => void
   isComplete: boolean
+  onSkip: () => void
 }
 
 export default function ScoreTable({
@@ -22,6 +23,7 @@ export default function ScoreTable({
   matchScores,
   onComplete,
   isComplete,
+  onSkip,
 }: ScoreTableProps) {
   useEffect(() => {
     if (isComplete) {
@@ -155,7 +157,7 @@ export default function ScoreTable({
       </div>
 
       {/* Score table */}
-      <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
+      <div style={{ overflowX: 'auto', maxWidth: '100%', position: 'relative' }}>
         <table
           style={{
             borderCollapse: 'collapse',
@@ -304,6 +306,30 @@ export default function ScoreTable({
           </tbody>
         </table>
       </div>
+
+      {/* Skip button */}
+      {!isComplete && (
+        <motion.button
+          onClick={onSkip}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          whileHover={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.4 }}
+          style={{
+            fontFamily: 'var(--font-retro)',
+            fontSize: '7px',
+            padding: '6px 16px',
+            background: 'transparent',
+            color: 'var(--color-purple)',
+            border: '1px solid rgba(176, 38, 255, 0.3)',
+            borderRadius: '3px',
+            cursor: 'pointer',
+            letterSpacing: '2px',
+          }}
+        >
+          SKIP
+        </motion.button>
+      )}
     </motion.div>
   )
 }

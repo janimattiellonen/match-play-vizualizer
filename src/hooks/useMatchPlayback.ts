@@ -9,6 +9,7 @@ interface PlaybackState {
   matchScores: [number, number]
   isComplete: boolean
   reset: () => void
+  skip: () => void
 }
 
 const TIMING = {
@@ -101,5 +102,21 @@ export function useMatchPlayback(match: MatchData | null, active: boolean): Play
     setIsComplete(false)
   }, [clearTimer])
 
-  return { revealedHole, revealStage, matchScores, isComplete, reset }
+  const skip = useCallback(() => {
+    if (!match) return
+    clearTimer()
+    const totalHoles = match.holes.length
+    const scores: [number, number] = [0, 0]
+    for (const hole of match.holes) {
+      const [s1, s2] = hole.scores
+      if (s1 < s2) scores[0]++
+      else if (s2 < s1) scores[1]++
+    }
+    setRevealedHole(totalHoles)
+    setRevealStage('done')
+    setMatchScores(scores)
+    setIsComplete(true)
+  }, [match, clearTimer])
+
+  return { revealedHole, revealStage, matchScores, isComplete, reset, skip }
 }
