@@ -15,4 +15,4 @@ export interface MatchData {
   holes: HoleResult[]
 }
 
-export type Phase = 'vs-screen' | 'countdown' | 'score-reveal' | 'celebration'
+export type Phase = 'vs-screen' | 'create-form' | 'countdown' | 'score-reveal' | 'celebration'

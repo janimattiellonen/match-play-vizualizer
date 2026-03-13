@@ -51,8 +51,8 @@ export async function fetchMatchFromMetrix(competitionId: number): Promise<Match
 
   return {
     players: [
-      { id: 1, name: p1.Name, image: '/players/player-1.jpeg' },
-      { id: 2, name: p2.Name, image: '/players/player-2.jpeg' },
+      { id: 1, name: p1.Name, image: '/players/player-1.png' },
+      { id: 2, name: p2.Name, image: '/players/player-2.png' },
     ],
     holes,
   }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { AnimatePresence, LayoutGroup } from 'framer-motion'
 import type { Phase, MatchData } from './types/match'
 import { fetchMatchFromMetrix } from './api/metrixClient'
@@ -6,25 +6,67 @@ import VSScreen from './components/VSScreen'
 import CountdownOverlay from './components/CountdownOverlay'
 import ScoreTable from './components/ScoreTable'
 import WinnerCelebration from './components/WinnerCelebration'
+import CreateMatchForm from './components/CreateMatchForm'
 import { useMatchPlayback } from './hooks/useMatchPlayback'
 import './App.css'
 
-const COMPETITION_ID = 3541752
+const DEFAULT_COMPETITION_ID = 3541752
+
+const PLACEHOLDER_MATCH: MatchData = {
+  players: [
+    { id: 1, name: 'Player 1', image: '/players/player-1.png' },
+    { id: 2, name: 'Player 2', image: '/players/player-2.png' },
+  ],
+  holes: [],
+}
 
 function App() {
   const [matchData, setMatchData] = useState<MatchData | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [phase, setPhase] = useState<Phase>('vs-screen')
+  const [createLoading, setCreateLoading] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
   const playback = useMatchPlayback(matchData, phase === 'score-reveal')
 
-  useEffect(() => {
-    fetchMatchFromMetrix(COMPETITION_ID)
-      .then(setMatchData)
-      .catch((err) => setError(err.message))
-  }, [])
+  const handleBegin = useCallback(async () => {
+    setCreateLoading(true)
+    setCreateError(null)
+    try {
+      const data = await fetchMatchFromMetrix(DEFAULT_COMPETITION_ID)
+      data.players[0].image = '/players/player-1.jpeg'
+      data.players[1].image = '/players/player-2.jpeg'
+      setMatchData(data)
+      playback.reset()
+      setPhase('countdown')
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to load match')
+    } finally {
+      setCreateLoading(false)
+    }
+  }, [playback])
 
-  const handleBegin = () => {
-    setPhase('countdown')
+  const handleCreate = () => {
+    setCreateError(null)
+    setPhase('create-form')
+  }
+
+  const handleCreateSubmit = useCallback(async (competitionId: number) => {
+    setCreateLoading(true)
+    setCreateError(null)
+    try {
+      const data = await fetchMatchFromMetrix(competitionId)
+      setMatchData(data)
+      playback.reset()
+      setPhase('countdown')
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to load match')
+    } finally {
+      setCreateLoading(false)
+    }
+  }, [playback])
+
+  const handleCreateCancel = () => {
+    setCreateError(null)
+    setPhase('vs-screen')
   }
 
   const handleCountdownComplete = () => {
@@ -40,36 +82,7 @@ function App() {
     playback.reset()
   }
 
-  if (error) {
-    return (
-      <div className="app">
-        <div className="app-content">
-          <p style={{ color: 'var(--color-red)', fontFamily: 'var(--font-retro)', fontSize: '12px' }}>
-            {error}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!matchData) {
-    return (
-      <div className="app">
-        <div className="scanline" />
-        <div className="app-content">
-          <p style={{
-            fontFamily: 'var(--font-retro)',
-            fontSize: '14px',
-            color: 'var(--color-cyan)',
-            textShadow: 'var(--text-glow-cyan)',
-            animation: 'neonPulse 1.5s ease-in-out infinite',
-          }}>
-            LOADING...
-          </p>
-        </div>
-      </div>
-    )
-  }
+  const displayMatch = matchData ?? PLACEHOLDER_MATCH
 
   return (
     <div className="app">
@@ -80,9 +93,22 @@ function App() {
             {phase === 'vs-screen' && (
               <VSScreen
                 key="vs"
-                match={matchData}
+                match={displayMatch}
                 matchScores={[0, 0]}
                 onBegin={handleBegin}
+                onCreate={handleCreate}
+                isLoading={createLoading}
+                error={createError}
+              />
+            )}
+
+            {phase === 'create-form' && (
+              <CreateMatchForm
+                key="create"
+                onSubmit={handleCreateSubmit}
+                onCancel={handleCreateCancel}
+                isLoading={createLoading}
+                error={createError}
               />
             )}
 
@@ -90,7 +116,7 @@ function App() {
               <CountdownOverlay key="countdown" onComplete={handleCountdownComplete} />
             )}
 
-            {phase === 'score-reveal' && (
+            {phase === 'score-reveal' && matchData && (
               <ScoreTable
                 key="score"
                 match={matchData}
@@ -102,7 +128,7 @@ function App() {
               />
             )}
 
-            {phase === 'celebration' && (
+            {phase === 'celebration' && matchData && (
               <WinnerCelebration
                 key="celebration"
                 match={matchData}
