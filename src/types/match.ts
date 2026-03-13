@@ -13,6 +13,7 @@ export interface HoleResult {
 export interface MatchData {
   players: [Player, Player]
   holes: HoleResult[]
+  metrixUrl?: string
 }
 
 export type Phase = 'vs-screen' | 'create-form' | 'countdown' | 'score-reveal' | 'celebration'

@@ -312,8 +312,8 @@ export default function ScoreTable({
         <motion.button
           onClick={onSkip}
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          whileHover={{ opacity: 1 }}
+          animate={{ opacity: 0.7 }}
+          whileHover={{ opacity: 1, boxShadow: '0 0 8px rgba(176, 38, 255, 0.4)' }}
           transition={{ delay: 1, duration: 0.4 }}
           style={{
             fontFamily: 'var(--font-retro)',
@@ -321,7 +321,7 @@ export default function ScoreTable({
             padding: '6px 16px',
             background: 'transparent',
             color: 'var(--color-purple)',
-            border: '1px solid rgba(176, 38, 255, 0.3)',
+            border: '1px solid rgba(176, 38, 255, 0.5)',
             borderRadius: '3px',
             cursor: 'pointer',
             letterSpacing: '2px',

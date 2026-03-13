@@ -13,7 +13,7 @@ export default function BeginButton({ onClick, label = 'BEGIN', disabled }: Begi
       disabled={disabled}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1, duration: 0.5 }}
+      transition={{ duration: 0.5 }}
       whileHover={disabled ? {} : {
         scale: 1.1,
         boxShadow: '0 0 20px #ff2d95, 0 0 40px #ff2d95, 0 0 60px #b026ff',

@@ -86,7 +86,7 @@ export default function VSScreen({ match, matchScores, onBegin, onCreate, isLoad
           onClick={onCreate}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.5 }}
+          transition={{ duration: 0.5 }}
           whileHover={{
             scale: 1.1,
             boxShadow: '0 0 15px var(--color-cyan), 0 0 30px var(--color-cyan)',

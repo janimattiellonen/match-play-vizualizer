@@ -55,5 +55,6 @@ export async function fetchMatchFromMetrix(competitionId: number): Promise<Match
       { id: 2, name: p2.Name, image: '/players/player-2.png' },
     ],
     holes,
+    metrixUrl: `https://discgolfmetrix.com/${competitionId}`,
   }
 }

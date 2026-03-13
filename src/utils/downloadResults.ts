@@ -41,7 +41,8 @@ export async function downloadResultsImage(match: MatchData, matchScores: [numbe
   const playerSectionH = imgSize + 60 // image + name + spacing
   const tableY = playerSectionY + playerSectionH + 30
   const tableH = HEADER_H + 2 * CELL_H
-  const canvasHeight = tableY + tableH + 40
+  const urlSectionH = match.metrixUrl ? 40 : 0
+  const canvasHeight = tableY + tableH + urlSectionH + 40
 
   const canvas = document.createElement('canvas')
   canvas.width = canvasWidth
@@ -262,6 +263,17 @@ export async function downloadResultsImage(match: MatchData, matchScores: [numbe
   ctx.moveTo(sumColX, tableY)
   ctx.lineTo(sumColX, tableY + HEADER_H + 2 * CELL_H)
   ctx.stroke()
+
+  // Metrix URL
+  if (match.metrixUrl) {
+    ctx.font = '16px "Orbitron", monospace'
+    ctx.fillStyle = PURPLE
+    ctx.shadowColor = PURPLE
+    ctx.shadowBlur = 5
+    ctx.textAlign = 'center'
+    ctx.fillText(match.metrixUrl, centerX, tableY + tableH + 32)
+    ctx.shadowBlur = 0
+  }
 
   // Download
   const link = document.createElement('a')
