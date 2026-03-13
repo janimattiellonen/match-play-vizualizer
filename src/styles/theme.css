@@ -1,0 +1,47 @@
+:root {
+  /* Core colors */
+  --color-bg: #0a0a1a;
+  --color-purple: #b026ff;
+  --color-pink: #ff2d95;
+  --color-yellow: #ffd700;
+  --color-red: #ff073a;
+  --color-cyan: #00f0ff;
+  --color-white: #f0e6ff;
+
+  /* Neon glows */
+  --glow-purple: 0 0 10px #b026ff, 0 0 20px #b026ff, 0 0 40px #b026ff;
+  --glow-pink: 0 0 10px #ff2d95, 0 0 20px #ff2d95, 0 0 40px #ff2d95;
+  --glow-cyan: 0 0 10px #00f0ff, 0 0 20px #00f0ff, 0 0 40px #00f0ff;
+  --glow-yellow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 40px #ffd700;
+  --glow-red: 0 0 10px #ff073a, 0 0 20px #ff073a, 0 0 40px #ff073a;
+
+  /* Text glow */
+  --text-glow-purple: 0 0 7px #b026ff, 0 0 10px #b026ff, 0 0 21px #b026ff, 0 0 42px #b026ff;
+  --text-glow-pink: 0 0 7px #ff2d95, 0 0 10px #ff2d95, 0 0 21px #ff2d95, 0 0 42px #ff2d95;
+  --text-glow-cyan: 0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff, 0 0 42px #00f0ff;
+  --text-glow-yellow: 0 0 7px #ffd700, 0 0 10px #ffd700, 0 0 21px #ffd700, 0 0 42px #ffd700;
+
+  /* Fonts */
+  --font-retro: 'Press Start 2P', monospace;
+  --font-tech: 'Orbitron', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-tech);
+  background: var(--color-bg);
+  color: var(--color-white);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
