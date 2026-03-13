@@ -58,6 +58,37 @@ export default function ScoreTable({
     return null
   }
 
+  function getRunningSum(playerIndex: number): number | null {
+    let sum = 0
+    let hasAny = false
+    for (let i = 0; i < match.holes.length; i++) {
+      const val = getCellValue(i, playerIndex)
+      if (val === null) break
+      sum += val
+      hasAny = true
+    }
+    return hasAny ? sum : null
+  }
+
+  function getRunningDiff(playerIndex: number): number | null {
+    let diff = 0
+    let hasAny = false
+    for (let i = 0; i < match.holes.length; i++) {
+      const val = getCellValue(i, playerIndex)
+      if (val === null) break
+      diff += val - match.holes[i].par
+      hasAny = true
+    }
+    return hasAny ? diff : null
+  }
+
+  function formatDiff(diff: number | null): string {
+    if (diff === null) return ''
+    if (diff > 0) return `+${diff}`
+    if (diff < 0) return `${diff}`
+    return '0'
+  }
+
   const currentWinner = revealedHole > 0 && (revealStage === 'result' || revealStage === 'done')
     ? getHoleResult(revealedHole - 1)
     : null
@@ -170,6 +201,31 @@ export default function ScoreTable({
                   {i + 1}
                 </th>
               ))}
+              <th
+                style={{
+                  padding: '8px 10px',
+                  fontFamily: 'var(--font-retro)',
+                  fontSize: '9px',
+                  color: 'var(--color-yellow)',
+                  textAlign: 'center',
+                  border: '1px solid rgba(176, 38, 255, 0.15)',
+                  borderLeft: '2px solid rgba(176, 38, 255, 0.3)',
+                }}
+              >
+                +/-
+              </th>
+              <th
+                style={{
+                  padding: '8px 10px',
+                  fontFamily: 'var(--font-retro)',
+                  fontSize: '9px',
+                  color: 'var(--color-yellow)',
+                  textAlign: 'center',
+                  border: '1px solid rgba(176, 38, 255, 0.15)',
+                }}
+              >
+                SUM
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -203,6 +259,46 @@ export default function ScoreTable({
                     />
                   )
                 })}
+                {(() => {
+                  const diff = getRunningDiff(playerIndex)
+                  const diffColor = diff !== null && diff < 0
+                    ? 'var(--color-cyan)'
+                    : diff !== null && diff > 0
+                      ? 'var(--color-red)'
+                      : 'var(--color-white)'
+                  return (
+                    <td
+                      style={{
+                        padding: '8px 10px',
+                        fontFamily: 'var(--font-tech)',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        color: diffColor,
+                        textAlign: 'center',
+                        border: '1px solid rgba(176, 38, 255, 0.15)',
+                        borderLeft: '2px solid rgba(176, 38, 255, 0.3)',
+                      }}
+                    >
+                      {formatDiff(diff)}
+                    </td>
+                  )
+                })()}
+                <td
+                  style={{
+                    padding: '8px 10px',
+                    fontFamily: 'var(--font-tech)',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    color: playerIndex === 0 ? 'var(--color-cyan)' : 'var(--color-pink)',
+                    textAlign: 'center',
+                    border: '1px solid rgba(176, 38, 255, 0.15)',
+                    textShadow: playerIndex === 0
+                      ? '0 0 5px var(--color-cyan)'
+                      : '0 0 5px var(--color-pink)',
+                  }}
+                >
+                  {getRunningSum(playerIndex) ?? ''}
+                </td>
               </tr>
             ))}
           </tbody>
