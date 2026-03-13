@@ -29,7 +29,8 @@ export function useMatchPlayback(match: MatchData | null, active: boolean): Play
     if (!active || !match) return
     clearTimer()
 
-    const totalHoles = match.holes.length
+    const currentMatch = match
+    const totalHoles = currentMatch.holes.length
     let currentHole = 0
     let scores: [number, number] = [0, 0]
 
@@ -39,7 +40,7 @@ export function useMatchPlayback(match: MatchData | null, active: boolean): Play
         return
       }
 
-      const hole = match.holes[currentHole]
+      const hole = currentMatch.holes[currentHole]
       const holeNum = currentHole + 1
 
       // Stage 1: Highlight hole
