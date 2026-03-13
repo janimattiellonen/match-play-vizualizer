@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { MatchData } from '../types/match'
+import { downloadResultsImage } from '../utils/downloadResults'
 
 interface WinnerCelebrationProps {
   match: MatchData
@@ -17,6 +18,10 @@ export default function WinnerCelebration({ match, matchScores, onBack }: Winner
   const winner = match.players[winnerIndex]
   const loser = match.players[loserIndex]
   const winnerColor = winnerIndex === 0 ? 'var(--color-cyan)' : 'var(--color-pink)'
+
+  const handleDownload = useCallback(() => {
+    downloadResultsImage(match, matchScores)
+  }, [match, matchScores])
 
   useEffect(() => {
     const timers = [
@@ -228,36 +233,67 @@ export default function WinnerCelebration({ match, matchScores, onBack }: Winner
         </motion.div>
       </motion.div>
 
-      {/* Back button */}
+      {/* Action buttons */}
       <AnimatePresence>
         {stage === 'winner-text' && (
-          <motion.button
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.5 }}
-            onClick={onBack}
-            whileHover={{
-              scale: 1.1,
-              boxShadow: '0 0 15px var(--color-purple), 0 0 30px var(--color-purple)',
-            }}
-            whileTap={{ scale: 0.95 }}
             style={{
               position: 'absolute',
               bottom: '8%',
-              fontFamily: 'var(--font-retro)',
-              fontSize: '12px',
-              padding: '12px 32px',
-              background: 'rgba(176, 38, 255, 0.2)',
-              color: 'var(--color-purple)',
-              border: '2px solid var(--color-purple)',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              letterSpacing: '3px',
-              boxShadow: '0 0 8px var(--color-purple)',
+              display: 'flex',
+              gap: '16px',
+              alignItems: 'center',
             }}
           >
-            BACK
-          </motion.button>
+            <motion.button
+              onClick={onBack}
+              whileHover={{
+                scale: 1.1,
+                boxShadow: '0 0 15px var(--color-purple), 0 0 30px var(--color-purple)',
+              }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                fontFamily: 'var(--font-retro)',
+                fontSize: '12px',
+                padding: '12px 32px',
+                background: 'rgba(176, 38, 255, 0.2)',
+                color: 'var(--color-purple)',
+                border: '2px solid var(--color-purple)',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                letterSpacing: '3px',
+                boxShadow: '0 0 8px var(--color-purple)',
+              }}
+            >
+              BACK
+            </motion.button>
+
+            <motion.button
+              onClick={handleDownload}
+              whileHover={{
+                scale: 1.1,
+                boxShadow: '0 0 15px var(--color-cyan), 0 0 30px var(--color-cyan)',
+              }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                fontFamily: 'var(--font-retro)',
+                fontSize: '10px',
+                padding: '12px 24px',
+                background: 'rgba(0, 240, 255, 0.15)',
+                color: 'var(--color-cyan)',
+                border: '2px solid var(--color-cyan)',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                letterSpacing: '2px',
+                boxShadow: '0 0 8px var(--color-cyan)',
+              }}
+            >
+              DOWNLOAD RESULTS
+            </motion.button>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.div>
