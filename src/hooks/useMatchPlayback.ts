@@ -11,6 +11,15 @@ interface PlaybackState {
   reset: () => void
 }
 
+const TIMING = {
+  INITIAL_DELAY: 600,
+  HIGHLIGHT_TO_P1: 400,
+  P1_TO_P2: 300,
+  P2_TO_RESULT: 600,
+  RESULT_HOLD: 400,
+  NEXT_HOLE: 300,
+} as const
+
 export function useMatchPlayback(match: MatchData | null, active: boolean): PlaybackState {
   const [revealedHole, setRevealedHole] = useState(0)
   const [revealStage, setRevealStage] = useState<RevealStage>('idle')
@@ -47,7 +56,6 @@ export function useMatchPlayback(match: MatchData | null, active: boolean): Play
       setRevealedHole(holeNum)
       setRevealStage('highlight')
 
-      // TODO: restore original timings after testing (500, 600, 600, 1200, 300)
       timeoutRef.current = setTimeout(() => {
         setRevealStage('p1-score')
 
@@ -71,16 +79,16 @@ export function useMatchPlayback(match: MatchData | null, active: boolean): Play
 
               timeoutRef.current = setTimeout(() => {
                 revealNext()
-              }, 50)
-            }, 150)
-          }, 100)
-        }, 100)
-      }, 80)
+              }, TIMING.NEXT_HOLE)
+            }, TIMING.RESULT_HOLD)
+          }, TIMING.P2_TO_RESULT)
+        }, TIMING.P1_TO_P2)
+      }, TIMING.HIGHLIGHT_TO_P1)
     }
 
     timeoutRef.current = setTimeout(() => {
       revealNext()
-    }, 200)
+    }, TIMING.INITIAL_DELAY)
 
     return clearTimer
   }, [active, match, clearTimer])
