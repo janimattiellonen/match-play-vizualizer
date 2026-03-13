@@ -1,4 +1,5 @@
 import type { MatchData } from '../types/match'
+import { getClinchHoleIndex } from './matchUtils'
 
 const CANVAS_WIDTH = 900
 const BG_COLOR = '#0a0a1a'
@@ -41,8 +42,10 @@ export async function downloadResultsImage(match: MatchData, matchScores: [numbe
   const playerSectionH = imgSize + 60 // image + name + spacing
   const tableY = playerSectionY + playerSectionH + 30
   const tableH = HEADER_H + 2 * CELL_H
+  const clinchIndex = getClinchHoleIndex(match)
+  const skullSectionH = clinchIndex !== null ? 24 : 0
   const urlSectionH = match.metrixUrl ? 40 : 0
-  const canvasHeight = tableY + tableH + urlSectionH + 40
+  const canvasHeight = tableY + tableH + skullSectionH + urlSectionH + 40
 
   const canvas = document.createElement('canvas')
   canvas.width = canvasWidth
@@ -264,6 +267,23 @@ export async function downloadResultsImage(match: MatchData, matchScores: [numbe
   ctx.lineTo(sumColX, tableY + HEADER_H + 2 * CELL_H)
   ctx.stroke()
 
+  // Clinch line + skull
+  if (clinchIndex !== null) {
+    const clinchX = tableX + NAME_COL_W + (clinchIndex + 1) * CELL_W
+    ctx.strokeStyle = 'rgba(255, 7, 58, 0.6)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.moveTo(clinchX, tableY)
+    ctx.lineTo(clinchX, tableY + tableH)
+    ctx.stroke()
+    ctx.lineWidth = 1
+
+    // Skull emoji below the line
+    ctx.font = '14px serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('\u{1F480}', clinchX, tableY + tableH + 18)
+  }
+
   // Metrix URL
   if (match.metrixUrl) {
     ctx.font = '16px "Orbitron", monospace'
@@ -271,7 +291,7 @@ export async function downloadResultsImage(match: MatchData, matchScores: [numbe
     ctx.shadowColor = PURPLE
     ctx.shadowBlur = 5
     ctx.textAlign = 'center'
-    ctx.fillText(match.metrixUrl, centerX, tableY + tableH + 32)
+    ctx.fillText(match.metrixUrl, centerX, tableY + tableH + skullSectionH + 32)
     ctx.shadowBlur = 0
   }
 

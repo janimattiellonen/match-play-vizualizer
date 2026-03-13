@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import type { MatchData } from '../types/match'
 import type { RevealStage } from '../hooks/useMatchPlayback'
+import { getClinchHoleIndex } from '../utils/matchUtils'
 import ScoreCell from './ScoreCell'
 import ScoreDisplay from './ScoreDisplay'
 import PlayerCard from './PlayerCard'
@@ -90,6 +91,14 @@ export default function ScoreTable({
     if (diff < 0) return `${diff}`
     return '0'
   }
+
+  const clinchIndex = useMemo(() => getClinchHoleIndex(match), [match])
+
+  // Only show clinch marker once that hole's result has been revealed
+  const showClinch = clinchIndex !== null && (
+    revealedHole > clinchIndex + 1
+    || (revealedHole === clinchIndex + 1 && (revealStage === 'result' || revealStage === 'done'))
+  )
 
   const currentWinner = revealedHole > 0 && (revealStage === 'result' || revealStage === 'done')
     ? getHoleResult(revealedHole - 1)
@@ -194,6 +203,7 @@ export default function ScoreTable({
                         : 'var(--color-purple)',
                     textAlign: 'center',
                     border: '1px solid rgba(176, 38, 255, 0.15)',
+                    borderRight: showClinch && i === clinchIndex ? '2px solid rgba(255, 7, 58, 0.6)' : undefined,
                     background:
                       i + 1 === revealedHole
                         ? 'rgba(255, 215, 0, 0.1)'
@@ -258,6 +268,7 @@ export default function ScoreTable({
                       isLoser={result?.loser === playerIndex}
                       isWinner={result?.winner === playerIndex}
                       isCurrentHole={holeIndex + 1 === revealedHole}
+                      isClinch={showClinch && holeIndex === clinchIndex}
                     />
                   )
                 })}
@@ -304,6 +315,31 @@ export default function ScoreTable({
               </tr>
             ))}
           </tbody>
+          {showClinch && clinchIndex !== null && (
+            <tfoot>
+              <tr>
+                <td colSpan={clinchIndex + 2} />
+                <td
+                  colSpan={match.holes.length - clinchIndex + 1}
+                  style={{
+                    padding: '4px 0 0 0',
+                    textAlign: 'left',
+                    fontSize: '14px',
+                    border: 'none',
+                  }}
+                >
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                    title="Match decided"
+                  >
+                    &#x1F480;
+                  </motion.span>
+                </td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
 

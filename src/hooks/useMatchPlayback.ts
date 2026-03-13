@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type { MatchData } from '../types/match'
+import { getClinchHoleIndex } from '../utils/matchUtils'
 
 export type RevealStage = 'idle' | 'highlight' | 'p1-score' | 'p2-score' | 'result' | 'done'
 
@@ -41,6 +42,7 @@ export function useMatchPlayback(match: MatchData | null, active: boolean): Play
 
     const currentMatch = match
     const totalHoles = currentMatch.holes.length
+    const clinchIndex = getClinchHoleIndex(currentMatch)
     let currentHole = 0
     let scores: [number, number] = [0, 0]
 
@@ -67,10 +69,13 @@ export function useMatchPlayback(match: MatchData | null, active: boolean): Play
             setRevealStage('result')
 
             const [s1, s2] = hole.scores
-            if (s1 < s2) {
-              scores = [scores[0] + 1, scores[1]]
-            } else if (s2 < s1) {
-              scores = [scores[0], scores[1] + 1]
+            const pastClinch = clinchIndex !== null && currentHole > clinchIndex
+            if (!pastClinch) {
+              if (s1 < s2) {
+                scores = [scores[0] + 1, scores[1]]
+              } else if (s2 < s1) {
+                scores = [scores[0], scores[1] + 1]
+              }
             }
             setMatchScores([...scores] as [number, number])
 
@@ -106,9 +111,11 @@ export function useMatchPlayback(match: MatchData | null, active: boolean): Play
     if (!match) return
     clearTimer()
     const totalHoles = match.holes.length
+    const clinchIdx = getClinchHoleIndex(match)
+    const stopAt = clinchIdx !== null ? clinchIdx + 1 : totalHoles
     const scores: [number, number] = [0, 0]
-    for (const hole of match.holes) {
-      const [s1, s2] = hole.scores
+    for (let i = 0; i < stopAt; i++) {
+      const [s1, s2] = match.holes[i].scores
       if (s1 < s2) scores[0]++
       else if (s2 < s1) scores[1]++
     }

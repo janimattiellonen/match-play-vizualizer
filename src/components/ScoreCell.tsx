@@ -6,9 +6,12 @@ interface ScoreCellProps {
   isLoser: boolean
   isWinner: boolean
   isCurrentHole: boolean
+  isClinch?: boolean
 }
 
-export default function ScoreCell({ value, isRevealing, isLoser, isWinner, isCurrentHole }: ScoreCellProps) {
+export default function ScoreCell({ value, isRevealing, isLoser, isWinner, isCurrentHole, isClinch }: ScoreCellProps) {
+  const clinchBorder = isClinch ? '2px solid rgba(255, 7, 58, 0.6)' : undefined
+
   if (value === null) {
     return (
       <td
@@ -19,6 +22,7 @@ export default function ScoreCell({ value, isRevealing, isLoser, isWinner, isCur
           fontSize: '14px',
           fontWeight: 700,
           border: '1px solid rgba(176, 38, 255, 0.15)',
+          borderRight: clinchBorder,
           background: isCurrentHole ? 'rgba(176, 38, 255, 0.1)' : 'transparent',
           minWidth: '36px',
         }}
@@ -57,6 +61,7 @@ export default function ScoreCell({ value, isRevealing, isLoser, isWinner, isCur
         fontWeight: 700,
         color: textColor,
         border: '1px solid rgba(176, 38, 255, 0.15)',
+        borderRight: clinchBorder,
         minWidth: '36px',
       }}
     >

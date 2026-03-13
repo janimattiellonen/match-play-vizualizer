@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import type { MatchData } from '../types/match'
 import { downloadResultsImage } from '../utils/downloadResults'
 
@@ -12,6 +13,7 @@ interface WinnerCelebrationProps {
 type CelebrationStage = 'highlight' | 'fadeout' | 'center' | 'winner-text'
 
 export default function WinnerCelebration({ match, matchScores, onBack }: WinnerCelebrationProps) {
+  const navigate = useNavigate()
   const [stage, setStage] = useState<CelebrationStage>('highlight')
   const winnerIndex = matchScores[0] > matchScores[1] ? 0 : 1
   const loserIndex = winnerIndex === 0 ? 1 : 0
@@ -293,6 +295,34 @@ export default function WinnerCelebration({ match, matchScores, onBack }: Winner
             >
               DOWNLOAD RESULTS
             </motion.button>
+
+            {match.metrixUrl && (
+              <motion.button
+                onClick={() => {
+                  const id = match.metrixUrl!.split('/').pop()
+                  if (id) navigate(`/${id}`)
+                }}
+                whileHover={{
+                  scale: 1.1,
+                  boxShadow: '0 0 15px var(--color-yellow), 0 0 30px var(--color-yellow)',
+                }}
+                whileTap={{ scale: 0.95 }}
+                style={{
+                  fontFamily: 'var(--font-retro)',
+                  fontSize: '10px',
+                  padding: '12px 24px',
+                  background: 'rgba(255, 215, 0, 0.15)',
+                  color: 'var(--color-yellow)',
+                  border: '2px solid var(--color-yellow)',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  letterSpacing: '2px',
+                  boxShadow: '0 0 8px var(--color-yellow)',
+                }}
+              >
+                SHARE RESULTS
+              </motion.button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
