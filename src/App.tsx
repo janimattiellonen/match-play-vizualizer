@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { AnimatePresence, LayoutGroup } from 'framer-motion'
 import type { Phase, MatchData } from './types/match'
 import { fetchMatchFromMetrix } from './api/metrixClient'
@@ -7,10 +7,15 @@ import CountdownOverlay from './components/CountdownOverlay'
 import ScoreTable from './components/ScoreTable'
 import WinnerCelebration from './components/WinnerCelebration'
 import CreateMatchForm from './components/CreateMatchForm'
+import MuteButton from './components/MuteButton'
+import AudioVisualizer from './components/AudioVisualizer'
 import { useMatchPlayback } from './hooks/useMatchPlayback'
 import './App.css'
 
 const DEFAULT_COMPETITION_ID = 3541752
+
+const MUSIC_TRACKS = ['/file.mp3', '/file2.mp3', '/file3.mp3', '/file4.mp3', '/file5.mp3']
+const randomTrack = MUSIC_TRACKS[Math.floor(Math.random() * MUSIC_TRACKS.length)]
 
 const PLACEHOLDER_MATCH: MatchData = {
   players: [
@@ -25,7 +30,53 @@ function App() {
   const [phase, setPhase] = useState<Phase>('vs-screen')
   const [createLoading, setCreateLoading] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
+  const [muted, setMuted] = useState(true)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const playback = useMatchPlayback(matchData, phase === 'score-reveal')
+
+  const toggleMute = useCallback(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (muted) {
+      audio.volume = 1
+      audio.play().catch(() => {})
+      audio.muted = false
+      setMuted(false)
+    } else {
+      audio.muted = true
+      setMuted(true)
+    }
+  }, [muted])
+
+  // Fade out the last 3 seconds before the track ends, then restart at full volume
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const FADE_DURATION = 3
+
+    function handleTimeUpdate() {
+      if (!audio || audio.muted) return
+      const remaining = audio.duration - audio.currentTime
+      if (remaining <= FADE_DURATION) {
+        audio.volume = Math.max(0, remaining / FADE_DURATION)
+      } else if (audio.volume < 1) {
+        audio.volume = 1
+      }
+    }
+
+    function handleSeeked() {
+      if (!audio || audio.muted) return
+      audio.volume = 1
+    }
+
+    audio.addEventListener('timeupdate', handleTimeUpdate)
+    audio.addEventListener('seeked', handleSeeked)
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate)
+      audio.removeEventListener('seeked', handleSeeked)
+    }
+  }, [])
 
   const handleBegin = useCallback(async () => {
     setCreateLoading(true)
@@ -86,7 +137,10 @@ function App() {
 
   return (
     <div className="app">
+      <audio ref={audioRef} src={randomTrack} loop muted />
       <div className="scanline" />
+      <AudioVisualizer audioElement={audioRef.current} muted={muted} />
+      <MuteButton muted={muted} onToggle={toggleMute} />
       <div className="app-content">
         <LayoutGroup>
           <AnimatePresence mode="sync">
